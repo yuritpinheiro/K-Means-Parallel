@@ -7,6 +7,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 
 #define NUM_ARG 5
@@ -15,7 +17,8 @@
 
 typedef struct Elemento {
 	double* atributo;
-	int dimensao;
+	unsigned long long int dimensao;
+	unsigned long long int centro;
 } Elemento;
 
 void init_elemento(Elemento* elemento, int dimensao);
@@ -23,19 +26,25 @@ void destroy_elemento(Elemento* elemento);
 
 void modo_de_uso(int causa);
 
-void gerar_dados(Elemento* elementos, unsigned long long qtd_dados, unsigned long long qtd_dimensoes, double max, double min);
-void liberar_dados(Elemento* elementos, unsigned long long qtd_dados, unsigned long long qtd_dimensoes);
+void gerar_dados(Elemento* elementos, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes, double max, double min);
+void liberar_dados(Elemento* elementos, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes);
 
-double distancia(Elemento elemento, Elemento centro, unsigned long long qtd_dimensoes);
+double distancia(Elemento elemento, Elemento centro, unsigned long long int qtd_dimensoes);
 
-void k_means(Elemento* elementos, Elemento* centros, unsigned long long qtd_centros, unsigned long long qtd_dados, unsigned long long qtd_dimensoes);
+void init_centros(Elemento* elementos, Elemento* centros, unsigned long long int qtd_centros, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes);
+
+void agrupar_dados(Elemento* elementos, Elemento* centros, unsigned long long int qtd_centros, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes);
+bool determinar_novos_centros(Elemento* elementos, Elemento* centros, unsigned long long int qtd_centros, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes);
+
+void k_means(Elemento* elementos, Elemento* centros, unsigned long long int qtd_centros, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes);
 
 int main(int argc, char** argv) {
 	if (argc < NUM_ARG) {
 		modo_de_uso(1);
 	}
 	// Interpretar argumentos de entrada
-
+	Elemento *elementos, *centros;
+	unsigned long long int qtd_dados, qtd_centros, qtd_dimensoes;
 
 	// gerar dados
 	gerar_dados(elementos, qtd_dados, qtd_dimensoes, MAX, MIN);
@@ -44,6 +53,7 @@ int main(int argc, char** argv) {
 		// iniciar temporizador
 
 		// calcular k-means
+		k_means(elementos, centros, qtd_centros, qtd_dados, qtd_dimensoes);
 
 		// finalizar temporizador
 
@@ -61,6 +71,7 @@ int main(int argc, char** argv) {
 void init_elemento(Elemento* elemento, int dimensao) {
 	elemento = malloc(sizeof(Elemento));
 	elemento->atributo = malloc(dimensao * sizeof(double));
+	elemento->centro = -1;
 }
 
 /**
@@ -85,14 +96,14 @@ void modo_de_uso(int causa) {
 /**
  *	Função para geração aleatoria e alocação de memória para conjunto de dados.
  */
-void gerar_dados(Elemento* elementos, unsigned long long qtd_dados, unsigned long long qtd_dimensoes, double max, double min) {
+void gerar_dados(Elemento* elementos, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes, double max, double min) {
 	elementos = malloc(qtd_dados * sizeof(Elemento));
-	unsigned long long i;
+	unsigned long long int i;
 	for (i = 0; i < qtd_dados; i++) {
 		init_elemento(&elementos[i], qtd_dimensoes);
 		int j;
 		for (j = 0; j < qtd_dimensoes; j++) {
-			elementos[i].atributo[j] = dado_aleatorio;
+			// elementos[i].atributo[j] = dado_aleatorio;
 		}
 	}
 }
@@ -100,8 +111,8 @@ void gerar_dados(Elemento* elementos, unsigned long long qtd_dados, unsigned lon
 /**
  *	Função para desalocação de memória para conjunto de dados.
  */
-void liberar_dados(Elemento* elementos, unsigned long long qtd_dados, unsigned long long qtd_dimensoes) {
-	unsigned long long i;
+void liberar_dados(Elemento* elementos, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes) {
+	unsigned long long int i;
 	for (i = 0; i < qtd_dados; i++) {
 		free(elementos[i].atributo);
 	}
@@ -111,10 +122,10 @@ void liberar_dados(Elemento* elementos, unsigned long long qtd_dados, unsigned l
 /**
  *	Função para calculo de distancia entre dois elementos.
  */
-double distancia(Elemento elemento, Elemento centro, unsigned long long qtd_dimensoes) {
-	unsigned long long i;
+double distancia(Elemento elemento, Elemento centro, unsigned long long int qtd_dimensoes) {
+	unsigned long long int i;
 	double distancia = 0;
-	for (size_t i = 0; i < qtd_dimensoes; i++) {
+	for (i = 0; i < qtd_dimensoes; i++) {
 		distancia += pow(elemento.atributo[i] - centro.atributo[i], 2.0);
 	}
 
@@ -122,8 +133,36 @@ double distancia(Elemento elemento, Elemento centro, unsigned long long qtd_dime
 }
 
 /**
+ *	Inicialização dos centro do K-means.
+ */
+void init_centros(Elemento* elementos, Elemento* centros, unsigned long long int qtd_centros, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes) {
+	unsigned long long int i;
+	for (i = 0; i < qtd_centros; i++) {
+		centros[i] = elementos[i];
+	}
+}
+
+/**
+ *	Definição dos agrupamentos, associação de um elemento a um determinado grupo.
+ */
+void agrupar_dados(Elemento* elementos, Elemento* centros, unsigned long long int qtd_centros, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes) {
+
+}
+
+/**
+ *	Calcular centro associado a todos os grupos.
+ */
+bool determinar_novos_centros(Elemento* elementos, Elemento* centros, unsigned long long int qtd_centros, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes) {
+
+}
+
+/**
  *	Implementação do algoritmo K-means.
  */
-void k_means(Elemento* elementos, Elemento* centros, unsigned long long qtd_centros, unsigned long long qtd_dados, unsigned long long qtd_dimensoes) {
-
+void k_means(Elemento* elementos, Elemento* centros, unsigned long long int qtd_centros, unsigned long long int qtd_dados, unsigned long long int qtd_dimensoes) {
+	init_centros(elementos, centros, qtd_centros, qtd_dados, qtd_dimensoes);
+	bool reagrupar = true;
+	do {
+		agrupar_dados(elementos, centros, qtd_centros, qtd_dados, qtd_dimensoes);
+	} while (determinar_novos_centros( elementos,  centros, qtd_centros, qtd_dados, qtd_dimensoes));
 }
